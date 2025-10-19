@@ -14,6 +14,7 @@ export default function SearchTab() {
   const [genreFilter, setGenreFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [availableGenres, setAvailableGenres] = useState([])
+  const [selectedWork, setSelectedWork] = useState(null)
 
   // Fetch available tags and genres on mount
   useEffect(() => {
@@ -235,10 +236,17 @@ export default function SearchTab() {
         )}
 
         {results.map((work) => (
-          <div key={work.id} className="work-card">
+          <div
+            key={work.id}
+            className="work-card"
+            onClick={() => setSelectedWork(work)}
+            style={{ cursor: 'pointer' }}
+          >
             <h3>{work.title}</h3>
-            <p className="author">Tác Giả: {work.authors?.name || 'N/A'}</p>
-            <p className="genre">Thể Loại: {work.genres?.name || 'N/A'}</p>
+            <p className="author">👤 Tác Giả: {work.authors?.name || 'N/A'}</p>
+            {work.translator_name && (
+              <p className="translator">✏️ Dịch Giả: {work.translator_name}</p>
+            )}
             {work.work_tags && work.work_tags.length > 0 && (
               <div className="tags">
                 {work.work_tags.map((tag, idx) => (
@@ -246,11 +254,62 @@ export default function SearchTab() {
                 ))}
               </div>
             )}
-            <p className="summary">{work.summary}</p>
-            <p className="status">Trạng Thái: {work.status === 'ongoing' ? 'Đang tiến hành' : work.status === 'completed' ? 'Hoàn thành' : 'Tạm dừng'}</p>
+            <p className="status">
+              {work.status === 'ongoing' ? '🔄 Đang tiến hành' : work.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}
+            </p>
           </div>
         ))}
       </div>
+
+      {/* Detail Modal */}
+      {selectedWork && (
+        <div className="modal-overlay" onClick={() => setSelectedWork(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modal-close-btn"
+              onClick={() => setSelectedWork(null)}
+            >
+              ✕
+            </button>
+            <h2>{selectedWork.title}</h2>
+            <div className="modal-body">
+              <p><strong>👤 Tác Giả:</strong> {selectedWork.authors?.name || 'N/A'}</p>
+              {selectedWork.translator_name && (
+                <p><strong>✏️ Dịch Giả:</strong> {selectedWork.translator_name}</p>
+              )}
+              <p><strong>📚 Thể Loại:</strong> {selectedWork.genres?.name || 'N/A'}</p>
+              <p><strong>Trạng Thái:</strong> {selectedWork.status === 'ongoing' ? '🔄 Đang tiến hành' : selectedWork.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}</p>
+
+              {selectedWork.work_tags && selectedWork.work_tags.length > 0 && (
+                <div className="modal-tags">
+                  <strong>Thẻ:</strong>
+                  <div className="tags">
+                    {selectedWork.work_tags.map((tag, idx) => (
+                      <span key={idx} className="tag">{tag.tag_name}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="modal-summary">
+                <strong>Tóm Tắt:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                  {selectedWork.summary || 'Không có tóm tắt'}
+                </p>
+              </div>
+
+              {selectedWork.background && (
+                <div className="modal-background">
+                  <strong>Bối Cảnh:</strong>
+                  <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                    {selectedWork.background}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

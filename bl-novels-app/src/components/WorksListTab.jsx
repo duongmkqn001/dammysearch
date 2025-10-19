@@ -8,6 +8,7 @@ export default function WorksListTab() {
   const [error, setError] = useState(null)
   const [sortBy, setSortBy] = useState('title')
   const [filterStatus, setFilterStatus] = useState('all')
+  const [selectedWork, setSelectedWork] = useState(null)
 
   useEffect(() => {
     fetchWorks()
@@ -68,11 +69,15 @@ export default function WorksListTab() {
           <p className="no-works">Không có tác phẩm nào</p>
         ) : (
           works.map((work) => (
-            <div key={work.id} className="work-card">
+            <div
+              key={work.id}
+              className="work-card"
+              onClick={() => setSelectedWork(work)}
+              style={{ cursor: 'pointer' }}
+            >
               <h3>{work.title}</h3>
               <p className="author">👤 {work.authors?.name || 'N/A'}</p>
               <p className="genre">📚 {work.genres?.name || 'N/A'}</p>
-              <p className="summary">{work.summary}</p>
               <div className="work-footer">
                 <span className={`status ${work.status}`}>
                   {work.status === 'ongoing' && '🔄 Đang Cập Nhật'}
@@ -84,6 +89,42 @@ export default function WorksListTab() {
           ))
         )}
       </div>
+
+      {/* Detail Modal */}
+      {selectedWork && (
+        <div className="modal-overlay" onClick={() => setSelectedWork(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <button
+              className="modal-close-btn"
+              onClick={() => setSelectedWork(null)}
+            >
+              ✕
+            </button>
+            <h2>{selectedWork.title}</h2>
+            <div className="modal-body">
+              <p><strong>👤 Tác Giả:</strong> {selectedWork.authors?.name || 'N/A'}</p>
+              <p><strong>📚 Thể Loại:</strong> {selectedWork.genres?.name || 'N/A'}</p>
+              <p><strong>Trạng Thái:</strong> {selectedWork.status === 'ongoing' ? '🔄 Đang Cập Nhật' : selectedWork.status === 'completed' ? '✅ Hoàn Thành' : '⏸️ Tạm Dừng'}</p>
+
+              <div className="modal-summary">
+                <strong>Tóm Tắt:</strong>
+                <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                  {selectedWork.summary || 'Không có tóm tắt'}
+                </p>
+              </div>
+
+              {selectedWork.background && (
+                <div className="modal-background">
+                  <strong>Bối Cảnh:</strong>
+                  <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                    {selectedWork.background}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

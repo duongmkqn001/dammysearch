@@ -27,6 +27,9 @@ export default function TranslatorDashboard() {
     source_platform: 'Wattpad'
   });
 
+  // Duplicate check state
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
+
   // Handle login/register
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -139,6 +142,71 @@ export default function TranslatorDashboard() {
     setActiveTab('login');
     setEmail('');
     setPassword('');
+  };
+
+  // Check for duplicate stories in the database
+  const checkForDuplicates = async (title, authorName) => {
+    if (!title.trim() || !authorName.trim()) {
+      setDuplicateWarning(null);
+      return;
+    }
+
+    try {
+      const formattedTitle = formatTitle(title);
+      const formattedAuthor = formatAuthor(authorName);
+
+      // Check in works table
+      const { data: existingWorks, error: worksError } = await supabase
+        .from('works')
+        .select('id, title, authors(name)')
+        .ilike('title', `%${formattedTitle}%`);
+
+      if (worksError) throw worksError;
+
+      // Check in story_upload_requests table
+      const { data: existingUploads, error: uploadsError } = await supabase
+        .from('story_upload_requests')
+        .select('id, title, author_name')
+        .ilike('title', `%${formattedTitle}%`);
+
+      if (uploadsError) throw uploadsError;
+
+      // Check in story_import_requests table
+      const { data: existingImports, error: importsError } = await supabase
+        .from('story_import_requests')
+        .select('id, title, author_name')
+        .ilike('title', `%${formattedTitle}%`);
+
+      if (importsError) throw importsError;
+
+      // Filter by author name as well
+      const matchingWorks = existingWorks?.filter(w =>
+        w.authors?.name?.toLowerCase().includes(formattedAuthor.toLowerCase())
+      ) || [];
+
+      const matchingUploads = existingUploads?.filter(u =>
+        u.author_name?.toLowerCase().includes(formattedAuthor.toLowerCase())
+      ) || [];
+
+      const matchingImports = existingImports?.filter(i =>
+        i.author_name?.toLowerCase().includes(formattedAuthor.toLowerCase())
+      ) || [];
+
+      const totalMatches = matchingWorks.length + matchingUploads.length + matchingImports.length;
+
+      if (totalMatches > 0) {
+        setDuplicateWarning({
+          count: totalMatches,
+          works: matchingWorks.length,
+          uploads: matchingUploads.length,
+          imports: matchingImports.length
+        });
+      } else {
+        setDuplicateWarning(null);
+      }
+    } catch (error) {
+      console.error('Error checking for duplicates:', error);
+    }
   };
 
   // Get status badge color
@@ -296,7 +364,10 @@ export default function TranslatorDashboard() {
               <input
                 type="text"
                 value={storyForm.title}
-                onChange={(e) => setStoryForm({ ...storyForm, title: e.target.value })}
+                onChange={(e) => {
+                  setStoryForm({ ...storyForm, title: e.target.value });
+                  checkForDuplicates(e.target.value, storyForm.author_name);
+                }}
                 required
                 placeholder="Nhập tên truyện"
               />
@@ -306,11 +377,27 @@ export default function TranslatorDashboard() {
               <input
                 type="text"
                 value={storyForm.author_name}
-                onChange={(e) => setStoryForm({ ...storyForm, author_name: e.target.value })}
+                onChange={(e) => {
+                  setStoryForm({ ...storyForm, author_name: e.target.value });
+                  checkForDuplicates(storyForm.title, e.target.value);
+                }}
                 required
                 placeholder="Nhập tên tác giả"
               />
             </div>
+
+            {duplicateWarning && (
+              <div className="duplicate-warning">
+                <strong>⚠️ Cảnh báo trùng lặp:</strong>
+                <p>Đã tìm thấy {duplicateWarning.count} truyện có tiêu đề hoặc tác giả tương tự:</p>
+                <ul>
+                  {duplicateWarning.works > 0 && <li>📚 {duplicateWarning.works} trong thư viện chính</li>}
+                  {duplicateWarning.uploads > 0 && <li>📤 {duplicateWarning.uploads} trong yêu cầu tải lên</li>}
+                  {duplicateWarning.imports > 0 && <li>✏️ {duplicateWarning.imports} trong yêu cầu nhập</li>}
+                </ul>
+                <p style={{ fontSize: '0.9em', marginTop: '8px' }}>Vui lòng kiểm tra trước khi gửi để tránh trùng lặp.</p>
+              </div>
+            )}
             <div className="form-group">
               <label>Thể Loại:</label>
               <input
