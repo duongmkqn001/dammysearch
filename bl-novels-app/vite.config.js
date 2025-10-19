@@ -8,10 +8,12 @@ export default defineConfig({
     host: '0.0.0.0',
     port: process.env.PORT || 5173,
     strictPort: false,
+    middlewareMode: false,
   },
   preview: {
     host: '0.0.0.0',
     port: process.env.PORT || 4173,
     strictPort: false,
+    allowedHosts: ['bl-novels-app.onrender.com', 'localhost', '127.0.0.1'],
   },
 })

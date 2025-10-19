@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "serve -s dist -l ${PORT:-4173}"
+    "start": "node -e \"require('child_process').execSync('npx serve -s dist -l ' + (process.env.PORT || 4173), {stdio: 'inherit'})\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.75.1",
