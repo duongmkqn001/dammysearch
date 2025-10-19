@@ -26,33 +26,37 @@ export const ThemeProvider = ({ children }) => {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'blue-sky' ? 'love' : 'blue-sky')
+    setTheme(prevTheme => prevTheme === 'blue-sky' ? 'blossom-dawn' : 'blue-sky')
   }
 
   const themes = {
     'blue-sky': {
       name: '☁️ Blue Sky',
-      primary: '#00BCD4',
-      secondary: '#0097A7',
-      accent: '#4DD0E1',
-      background: 'linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%)',
-      headerBg: 'linear-gradient(135deg, #00BCD4 0%, #0097A7 100%)',
+      primary: '#1E88E5',
+      secondary: '#1565C0',
+      accent: '#42A5F5',
+      background: '#E3F2FD',
+      headerBg: '#E3F2FD',
       cardBg: 'rgba(255, 255, 255, 0.95)',
-      textPrimary: '#00695C',
-      textSecondary: '#666',
-      borderColor: '#00BCD4'
+      textPrimary: '#0D47A1',
+      textSecondary: '#424242',
+      borderColor: '#1E88E5',
+      buttonBg: '#1E88E5',
+      buttonHover: '#1565C0'
     },
-    'love': {
-      name: '💕 Love',
+    'blossom-dawn': {
+      name: '🌸 Blossom Dawn',
       primary: '#E91E63',
       secondary: '#C2185B',
-      accent: '#FF6B9D',
-      background: 'linear-gradient(135deg, #FFF0F5 0%, #E0F7FA 50%, #F1F8E9 100%)',
-      headerBg: 'linear-gradient(135deg, rgba(255, 192, 203, 0.4) 0%, rgba(173, 216, 230, 0.4) 100%)',
+      accent: '#F06292',
+      background: '#FCE4EC',
+      headerBg: '#FCE4EC',
       cardBg: 'rgba(255, 255, 255, 0.95)',
-      textPrimary: '#C2185B',
-      textSecondary: '#666',
-      borderColor: '#E91E63'
+      textPrimary: '#880E4F',
+      textSecondary: '#424242',
+      borderColor: '#E91E63',
+      buttonBg: '#E91E63',
+      buttonHover: '#C2185B'
     }
   }
 

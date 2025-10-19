@@ -46,8 +46,8 @@ function App() {
       <header className="app-header">
         <div className="header-content">
           <h1>Kho lưu trữ Đam Mỹ</h1>
-          <button className="theme-switcher" onClick={toggleTheme} title={`Chuyển sang theme ${theme === 'blue-sky' ? 'Love' : 'Blue Sky'}`}>
-            {theme === 'blue-sky' ? '💕 Love' : '☁️ Blue Sky'}
+          <button className="theme-switcher" onClick={toggleTheme} title={`Chuyển sang theme ${theme === 'blue-sky' ? 'Blossom Dawn' : 'Blue Sky'}`}>
+            {theme === 'blue-sky' ? '🌸 Blossom Dawn' : '☁️ Blue Sky'}
           </button>
         </div>
       </header>

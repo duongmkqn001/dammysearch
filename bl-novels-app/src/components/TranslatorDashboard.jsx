@@ -23,6 +23,7 @@ export default function TranslatorDashboard() {
     summary: '',
     background: '',
     main_genre: '',
+    chapter_count: 0,
     source_url: '',
     source_platform: 'Wattpad'
   });
@@ -107,6 +108,7 @@ export default function TranslatorDashboard() {
           summary: formatContext(storyForm.summary),
           background: formatContext(storyForm.background),
           main_genre: formatGenre(storyForm.main_genre),
+          chapter_count: parseInt(storyForm.chapter_count) || 0,
           source_url: storyForm.source_url,
           source_platform: storyForm.source_platform,
           translator_id: currentUser.id,
@@ -124,6 +126,7 @@ export default function TranslatorDashboard() {
         summary: '',
         background: '',
         main_genre: '',
+        chapter_count: 0,
         source_url: '',
         source_platform: 'Wattpad'
       });
@@ -343,6 +346,7 @@ export default function TranslatorDashboard() {
                   </div>
                   <p><strong>Tác Giả:</strong> {submission.author_name}</p>
                   <p><strong>Thể Loại:</strong> {submission.main_genre}</p>
+                  <p><strong>Số Chương:</strong> {submission.chapter_count || 0}</p>
                   <p><strong>Nền Tảng:</strong> {submission.source_platform}</p>
                   <p className="summary">{submission.summary}</p>
                   <p className="date">
@@ -414,6 +418,16 @@ export default function TranslatorDashboard() {
                 onChange={(e) => setStoryForm({ ...storyForm, summary: e.target.value })}
                 placeholder="Nhập tóm tắt truyện"
                 rows="4"
+              />
+            </div>
+            <div className="form-group">
+              <label>Số Chương Đã Dịch:</label>
+              <input
+                type="number"
+                min="0"
+                value={storyForm.chapter_count}
+                onChange={(e) => setStoryForm({ ...storyForm, chapter_count: e.target.value })}
+                placeholder="Nhập số chương đã dịch"
               />
             </div>
             <div className="form-group">

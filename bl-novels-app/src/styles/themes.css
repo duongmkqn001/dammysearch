@@ -1,32 +1,36 @@
 /* Blue Sky Theme (Default) */
 :root[data-theme="blue-sky"],
 :root {
-  --primary-color: #00BCD4;
-  --secondary-color: #0097A7;
-  --accent-color: #4DD0E1;
-  --background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%);
-  --header-bg: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
-  --card-bg: rgba(255, 255, 255, 0.95);
-  --text-primary: #00695C;
-  --text-secondary: #666;
-  --border-color: #00BCD4;
-  --button-hover: rgba(0, 188, 212, 0.1);
-  --shadow-color: rgba(0, 188, 212, 0.2);
+  --primary-color: #1E88E5;
+  --secondary-color: #1565C0;
+  --accent-color: #42A5F5;
+  --background: #E3F2FD;
+  --header-bg: #BBDEFB;
+  --card-bg: rgba(255, 255, 255, 0.98);
+  --text-primary: #0D47A1;
+  --text-secondary: #424242;
+  --border-color: #1E88E5;
+  --button-hover: rgba(30, 136, 229, 0.15);
+  --shadow-color: rgba(30, 136, 229, 0.3);
+  --button-bg: #1E88E5;
+  --button-hover-bg: #1565C0;
 }
 
-/* Love Theme */
-:root[data-theme="love"] {
+/* Blossom Dawn Theme */
+:root[data-theme="blossom-dawn"] {
   --primary-color: #E91E63;
   --secondary-color: #C2185B;
-  --accent-color: #FF6B9D;
-  --background: linear-gradient(135deg, #FFF0F5 0%, #E0F7FA 50%, #F1F8E9 100%);
-  --header-bg: linear-gradient(135deg, rgba(255, 192, 203, 0.4) 0%, rgba(173, 216, 230, 0.4) 100%);
+  --accent-color: #F06292;
+  --background: #FCE4EC;
+  --header-bg: #FCE4EC;
   --card-bg: rgba(255, 255, 255, 0.95);
-  --text-primary: #C2185B;
-  --text-secondary: #666;
+  --text-primary: #880E4F;
+  --text-secondary: #424242;
   --border-color: #E91E63;
   --button-hover: rgba(233, 30, 99, 0.1);
   --shadow-color: rgba(233, 30, 99, 0.2);
+  --button-bg: #E91E63;
+  --button-hover-bg: #C2185B;
 }
 
 /* Apply theme colors to body */
@@ -79,13 +83,13 @@ body {
 
 .modal-summary,
 .modal-background {
-  background: rgba(0, 188, 212, 0.05);
+  background: var(--button-hover);
   border-left-color: var(--primary-color);
 }
 
-:root[data-theme="love"] .modal-summary,
-:root[data-theme="love"] .modal-background {
-  background: rgba(233, 30, 99, 0.05);
+:root[data-theme="blossom-dawn"] .modal-summary,
+:root[data-theme="blossom-dawn"] .modal-background {
+  background: var(--button-hover);
   border-left-color: var(--primary-color);
 }
 

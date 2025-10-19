@@ -274,15 +274,15 @@ export default function SearchTab() {
             <h2>{selectedWork.title}</h2>
             <div className="modal-body">
               <p><strong>👤 Tác Giả:</strong> {selectedWork.authors?.name || 'N/A'}</p>
-              {selectedWork.translator_name && (
-                <p><strong>✏️ Dịch Giả:</strong> {selectedWork.translator_name}</p>
-              )}
               <p><strong>📚 Thể Loại:</strong> {selectedWork.genres?.name || 'N/A'}</p>
-              <p><strong>Trạng Thái:</strong> {selectedWork.status === 'ongoing' ? '🔄 Đang tiến hành' : selectedWork.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}</p>
+              <p><strong>📊 Trạng Thái:</strong> {selectedWork.status === 'ongoing' ? '🔄 Đang tiến hành' : selectedWork.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}</p>
+              {selectedWork.chapter_count > 0 && (
+                <p><strong>📖 Số Chương:</strong> {selectedWork.chapter_count} chương</p>
+              )}
 
               {selectedWork.work_tags && selectedWork.work_tags.length > 0 && (
                 <div className="modal-tags">
-                  <strong>Thẻ:</strong>
+                  <strong>🏷️ Thẻ:</strong>
                   <div className="tags">
                     {selectedWork.work_tags.map((tag, idx) => (
                       <span key={idx} className="tag">{tag.tag_name}</span>
@@ -291,20 +291,49 @@ export default function SearchTab() {
                 </div>
               )}
 
+              {selectedWork.background && (
+                <div className="modal-background">
+                  <strong>📝 Bối Cảnh:</strong>
+                  <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+                    {selectedWork.background}
+                  </p>
+                </div>
+              )}
+
               <div className="modal-summary">
-                <strong>Tóm Tắt:</strong>
+                <strong>📄 Tóm Tắt:</strong>
                 <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
                   {selectedWork.summary || 'Không có tóm tắt'}
                 </p>
               </div>
 
-              {selectedWork.background && (
-                <div className="modal-background">
-                  <strong>Bối Cảnh:</strong>
-                  <p style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
-                    {selectedWork.background}
-                  </p>
-                </div>
+              {selectedWork.translator_name && (
+                <p><strong>✏️ Dịch Giả:</strong> {selectedWork.translator_name}</p>
+              )}
+
+              {selectedWork.translation_platform && (
+                <p>
+                  <strong>
+                    {selectedWork.translation_platform.toLowerCase().includes('wattpad') ? '📱' :
+                     selectedWork.translation_platform.toLowerCase().includes('wordpress') ? '📝' :
+                     selectedWork.translation_platform.toLowerCase().includes('web') ? '🌐' : '📖'}
+                    {' '}Nền Tảng:
+                  </strong> {selectedWork.translation_platform}
+                </p>
+              )}
+
+              {selectedWork.translation_url && (
+                <p>
+                  <strong>🔗 Link Đọc Truyện:</strong>{' '}
+                  <a
+                    href={selectedWork.translation_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="translation-link"
+                  >
+                    {selectedWork.translation_url}
+                  </a>
+                </p>
               )}
             </div>
           </div>

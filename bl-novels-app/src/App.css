@@ -6,9 +6,10 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #FFF0F5 0%, #E0F7FA 50%, #F1F8E9 100%);
+  background: var(--background);
   min-height: 100vh;
-  color: #1a1a1a;
+  color: var(--text-secondary);
+  transition: background 0.3s ease;
 }
 
 .app-container {
@@ -80,54 +81,54 @@ body {
 
 .tab-button {
   padding: 12px 24px;
-  border: 2px solid #E91E63;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
-  background: white;
-  color: #C2185B;
+  background: var(--card-bg);
+  color: var(--text-primary);
   font-size: 1em;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .tab-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  background: #FFF0F5;
-  border-color: #C2185B;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  background: var(--button-hover);
+  border-color: var(--secondary-color);
 }
 
 .tab-button.active {
-  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  background: var(--button-bg);
   color: white;
-  border-color: #E91E63;
-  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4);
+  border-color: var(--button-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .tab-button.admin-link {
   text-decoration: none;
   display: inline-block;
-  background: linear-gradient(135deg, #FF6B9D 0%, #00BCD4 100%);
+  background: var(--accent-color);
   color: white;
-  border-color: #FF6B9D;
+  border-color: var(--accent-color);
   font-weight: 700;
 }
 
 .tab-button.admin-link:hover {
-  background: linear-gradient(135deg, #E91E63 0%, #0097A7 100%);
-  border-color: #E91E63;
-  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4);
+  background: var(--button-hover-bg);
+  border-color: var(--button-hover-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .tab-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card-bg);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 6px var(--shadow-color);
   min-height: 400px;
-  border: 2px solid rgba(233, 30, 99, 0.2);
-  color: #1a1a1a;
+  border: 2px solid var(--border-color);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {

@@ -27,6 +27,10 @@ CREATE TABLE works (
   background TEXT,
   main_genre_id BIGINT REFERENCES genres(id),
   status VARCHAR(50) DEFAULT 'ongoing', -- ongoing, completed, hiatus
+  chapter_count INT DEFAULT 0, -- Number of chapters available
+  translator_name VARCHAR(255), -- Primary translator name for easy access
+  translation_platform VARCHAR(100), -- Primary platform (Wattpad, WordPress, etc.)
+  translation_url VARCHAR(500), -- Primary translation URL
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -151,6 +155,7 @@ CREATE TABLE story_import_requests (
   main_genre VARCHAR(100),
   translator_id BIGINT NOT NULL REFERENCES translators(id) ON DELETE CASCADE,
   translator_name VARCHAR(255), -- Store translator name for easy access
+  chapter_count INT DEFAULT 0, -- Number of chapters translated
   status VARCHAR(50) DEFAULT 'incoming', -- incoming, process, completed, rejected
   source_url VARCHAR(500),
   source_platform VARCHAR(100),
@@ -181,6 +186,8 @@ CREATE TABLE IF NOT EXISTS story_upload_requests (
   main_genre VARCHAR(100),
   translator_editor_name VARCHAR(255), -- Name of translator/editor if applicable
   is_translator_editor BOOLEAN DEFAULT false, -- Whether the uploader is a translator/editor
+  chapter_count INT DEFAULT 0, -- Number of chapters available
+  story_status VARCHAR(50) DEFAULT 'ongoing', -- ongoing, completed, paused
   status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
   source_url VARCHAR(500),
   source_platform VARCHAR(100),

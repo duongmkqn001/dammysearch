@@ -106,20 +106,20 @@
 }
 
 .work-card {
-  background: white;
-  border: 2px solid #E91E63;
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 20px;
   transition: all 0.3s ease;
   cursor: pointer;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .work-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(233, 30, 99, 0.3);
-  border-color: #C2185B;
-  background: #FFF0F5;
+  box-shadow: 0 8px 16px var(--shadow-color);
+  border-color: var(--secondary-color);
+  background: var(--button-hover);
 }
 
 .work-card h3 {
@@ -404,7 +404,8 @@
 }
 
 .modal-content {
-  background: white;
+  background: var(--card-bg);
+  backdrop-filter: blur(0px);
   border-radius: 12px;
   padding: 30px;
   max-width: 700px;
@@ -413,6 +414,7 @@
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   position: relative;
+  border: 2px solid var(--border-color);
 }
 
 .modal-close-btn {
@@ -432,7 +434,7 @@
 }
 
 .modal-content h2 {
-  color: #E91E63;
+  color: var(--text-primary);
   margin-top: 0;
   margin-bottom: 20px;
   font-size: 1.8em;
@@ -451,7 +453,7 @@
 }
 
 .modal-body strong {
-  color: #E91E63;
+  color: var(--text-primary);
 }
 
 .modal-tags {
@@ -467,20 +469,32 @@
 }
 
 .modal-tags .tag {
-  background: linear-gradient(135deg, rgba(233, 30, 99, 0.2) 0%, rgba(0, 188, 212, 0.2) 100%);
-  color: #E91E63;
+  background: var(--button-hover);
+  color: var(--text-primary);
   padding: 6px 12px;
   border-radius: 20px;
   font-size: 0.9em;
-  border: 1px solid rgba(233, 30, 99, 0.3);
+  border: 1px solid var(--primary-color);
 }
 
 .modal-summary,
 .modal-background {
-  background: rgba(233, 30, 99, 0.05);
+  background: var(--button-hover);
   padding: 15px;
   border-radius: 8px;
-  border-left: 4px solid #E91E63;
+  border-left: 4px solid var(--primary-color);
+}
+
+.translation-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  word-break: break-all;
+  transition: all 0.3s ease;
+}
+
+.translation-link:hover {
+  text-decoration: underline;
+  opacity: 0.8;
 }
 
 .modal-summary p,

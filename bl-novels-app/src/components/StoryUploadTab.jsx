@@ -22,7 +22,9 @@ export default function StoryUploadTab() {
     source_platform: '',
     tags: '',
     translator_editor_name: '',
-    is_translator_editor: false
+    is_translator_editor: false,
+    chapter_count: 0,
+    story_status: 'ongoing'
   });
 
   // Duplicate check state
@@ -171,8 +173,10 @@ export default function StoryUploadTab() {
         main_genre: formatGenre(formData.main_genre),
         source_url: formData.source_url,
         source_platform: formData.source_platform,
-        translator_editor_name: formData.is_translator_editor ? formatAuthor(formData.translator_editor_name) : null,
+        translator_editor_name: formData.translator_editor_name ? formatAuthor(formData.translator_editor_name) : null,
         is_translator_editor: formData.is_translator_editor,
+        chapter_count: parseInt(formData.chapter_count) || 0,
+        story_status: formData.story_status,
         status: 'pending'
       };
 
@@ -211,7 +215,9 @@ export default function StoryUploadTab() {
         source_platform: '',
         tags: '',
         translator_editor_name: '',
-        is_translator_editor: false
+        is_translator_editor: false,
+        chapter_count: 0,
+        story_status: 'ongoing'
       });
 
       // Refresh uploads list
@@ -308,6 +314,35 @@ export default function StoryUploadTab() {
           </div>
 
           <div className="form-group">
+            <label>Trạng thái truyện *</label>
+            <select
+              name="story_status"
+              value={formData.story_status}
+              onChange={handleInputChange}
+              required
+              disabled={loading}
+            >
+              <option value="ongoing">🔄 Đang Cập Nhật</option>
+              <option value="completed">✅ Hoàn Thành</option>
+              <option value="paused">⏸️ Tạm Dừng</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Số chương hiện có</label>
+            <input
+              type="number"
+              name="chapter_count"
+              value={formData.chapter_count}
+              onChange={handleInputChange}
+              disabled={loading}
+              min="0"
+              placeholder="Nhập số chương (nếu biết)"
+            />
+            <small>Nhập số chương hiện có của truyện (nếu biết)</small>
+          </div>
+
+          <div className="form-group">
             <label>Tóm tắt</label>
             <textarea
               name="summary"
@@ -369,6 +404,19 @@ export default function StoryUploadTab() {
           </div>
 
           {/* Translator/Editor Section */}
+          <div className="form-group">
+            <label>Tên dịch giả/biên tập viên</label>
+            <input
+              type="text"
+              name="translator_editor_name"
+              value={formData.translator_editor_name}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Nhập tên dịch giả/biên tập viên (nếu biết)"
+            />
+            <small>Nhập tên người dịch hoặc biên tập truyện này (nếu có)</small>
+          </div>
+
           <div className="form-group checkbox-group">
             <label>
               <input
@@ -381,23 +429,9 @@ export default function StoryUploadTab() {
                 }))}
                 disabled={loading}
               />
-              Tôi là dịch giả/biên tập viên
+              Tôi là dịch giả/biên tập viên của truyện này
             </label>
           </div>
-
-          {formData.is_translator_editor && (
-            <div className="form-group">
-              <label>Tên dịch giả/biên tập viên</label>
-              <input
-                type="text"
-                name="translator_editor_name"
-                value={formData.translator_editor_name}
-                onChange={handleInputChange}
-                disabled={loading}
-                placeholder="Nhập tên dịch giả/biên tập viên"
-              />
-            </div>
-          )}
 
           <button
             type="submit"

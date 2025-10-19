@@ -1,16 +1,18 @@
 .admin-app {
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(255, 179, 217, 0.1) 0%, rgba(179, 229, 252, 0.1) 100%);
+  background: var(--background);
+  transition: background 0.3s ease;
 }
 
 .admin-header {
-  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
-  color: white;
+  background: var(--header-bg);
+  color: var(--text-primary);
   padding: 20px 0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px var(--shadow-color);
   position: sticky;
   top: 0;
   z-index: 100;
+  border-bottom: 2px solid var(--border-color);
 }
 
 .admin-header-content {
@@ -26,7 +28,7 @@
   margin: 0;
   font-size: 1.8em;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
 }
 
 .admin-header-actions {
@@ -37,10 +39,10 @@
 
 .theme-switcher {
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
-  color: white;
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.95em;
   cursor: pointer;
@@ -49,23 +51,25 @@
 }
 
 .theme-switcher:hover {
-  background: rgba(255, 255, 255, 0.4);
-  border-color: rgba(255, 255, 255, 0.8);
+  background: var(--button-hover);
+  border-color: var(--button-bg);
   transform: translateY(-2px);
 }
 
 .back-to-main {
-  color: white;
+  color: var(--text-primary);
   text-decoration: none;
   padding: 10px 20px;
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--card-bg);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   transition: all 0.3s ease;
   font-weight: 600;
 }
 
 .back-to-main:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: var(--button-hover);
+  border-color: var(--button-bg);
   transform: translateX(-3px);
 }
 
@@ -81,18 +85,18 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, rgba(255, 179, 217, 0.1) 0%, rgba(179, 229, 252, 0.1) 100%);
+  background: var(--background);
   text-align: center;
 }
 
 .admin-access-denied h1 {
-  color: #E91E63;
+  color: var(--text-primary);
   font-size: 2.5em;
   margin-bottom: 20px;
 }
 
 .admin-access-denied p {
-  color: #666;
+  color: var(--text-secondary);
   font-size: 1.1em;
   margin-bottom: 30px;
 }
@@ -100,7 +104,7 @@
 .back-button {
   display: inline-block;
   padding: 12px 30px;
-  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  background: var(--button-bg);
   color: white;
   text-decoration: none;
   border-radius: 6px;
@@ -110,7 +114,8 @@
 
 .back-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+  background: var(--button-hover-bg);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 @media (max-width: 768px) {

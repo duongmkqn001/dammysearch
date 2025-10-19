@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Admin Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #1976d2;
+        }
+        .error {
+            background: #ffebee;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #d32f2f;
+        }
+        .success {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #388e3c;
+        }
+        button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1565c0;
+        }
+        pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Admin Status Checker</h1>
+        
+        <div id="status"></div>
+        
+        <button onclick="checkLocalStorage()">Check LocalStorage</button>
+        <button onclick="checkSupabase()">Check Supabase Users</button>
+        <button onclick="clearAndReload()">Clear LocalStorage & Reload</button>
+        <button onclick="window.location.href='/'">Go to Main App</button>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm'
+
+        const supabaseUrl = 'https://hkflizcmxtzmmdawiopq.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhrZmxpemNteHR6bW1kYXdpb3BxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4MjcwMzYsImV4cCI6MjA3NjQwMzAzNn0.wpGLXrBloMwRHyL4dmwNlFu8TDJiKm38PYjIJdzPPNk'
+        const supabase = createClient(supabaseUrl, supabaseKey)
+
+        window.checkLocalStorage = function() {
+            const statusDiv = document.getElementById('status')
+            const currentUser = localStorage.getItem('currentUser')
+            
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser)
+                    statusDiv.innerHTML = `
+                        <div class="info">
+                            <h3>✅ User Found in LocalStorage</h3>
+                            <pre>${JSON.stringify(user, null, 2)}</pre>
+                            <p><strong>Email:</strong> ${user.email || 'N/A'}</p>
+                            <p><strong>Username:</strong> ${user.username || 'N/A'}</p>
+                            <p><strong>Role:</strong> ${user.role || 'N/A'}</p>
+                            <p><strong>User Type:</strong> ${user.user_type || 'N/A'}</p>
+                            <p><strong>Is Admin:</strong> ${user.role === 'admin' ? '✅ YES' : '❌ NO'}</p>
+                        </div>
+                    `
+                } catch (e) {
+                    statusDiv.innerHTML = `
+                        <div class="error">
+                            <h3>❌ Error Parsing User Data</h3>
+                            <p>${e.message}</p>
+                        </div>
+                    `
+                }
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ No User in LocalStorage</h3>
+                        <p>You are not logged in. Please login first.</p>
+                    </div>
+                `
+            }
+        }
+
+        window.checkSupabase = async function() {
+            const statusDiv = document.getElementById('status')
+            statusDiv.innerHTML = '<div class="info"><h3>⏳ Checking Supabase...</h3></div>'
+            
+            try {
+                const { data, error } = await supabase
+                    .from('user_accounts')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                
+                if (error) throw error
+                
+                const adminUsers = data.filter(u => u.role === 'admin')
+                
+                statusDiv.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Supabase Connection Successful</h3>
+                        <p><strong>Total Users:</strong> ${data.length}</p>
+                        <p><strong>Admin Users:</strong> ${adminUsers.length}</p>
+                    </div>
+                    <div class="info">
+                        <h3>👥 All Users:</h3>
+                        <pre>${JSON.stringify(data.map(u => ({
+                            id: u.id,
+                            email: u.email,
+                            username: u.username,
+                            role: u.role,
+                            user_type: u.user_type
+                        })), null, 2)}</pre>
+                    </div>
+                `
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Supabase Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `
+            }
+        }
+
+        window.clearAndReload = function() {
+            localStorage.clear()
+            alert('LocalStorage cleared! Reloading...')
+            window.location.reload()
+        }
+
+        // Auto-check on load
+        window.checkLocalStorage()
+    </script>
+</body>
+</html>
+

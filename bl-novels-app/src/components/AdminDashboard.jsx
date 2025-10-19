@@ -585,12 +585,14 @@ export default function AdminDashboard() {
                 <div className="modal-body">
                   <p><strong>Tác Giả:</strong> {selectedSubmission.author_name}</p>
                   <p><strong>Thể Loại:</strong> {selectedSubmission.main_genre}</p>
+                  <p><strong>Dịch Giả:</strong> {selectedSubmission.translator_name || 'N/A'}</p>
+                  <p><strong>Số Chương:</strong> {selectedSubmission.chapter_count || 0}</p>
                   <p><strong>Nền Tảng:</strong> {selectedSubmission.source_platform}</p>
-                  <p><strong>Liên Kết:</strong> <a href={selectedSubmission.source_url} target="_blank" rel="noopener noreferrer">{selectedSubmission.source_url}</a></p>
+                  <p><strong>Liên Kết:</strong> <a href={selectedSubmission.source_url} target="_blank" rel="noopener noreferrer" style={{color: 'var(--primary-color)', textDecoration: 'underline'}}>{selectedSubmission.source_url}</a></p>
                   <p><strong>Tóm Tắt:</strong></p>
-                  <p className="summary">{selectedSubmission.summary}</p>
+                  <p className="summary" style={{whiteSpace: 'pre-wrap'}}>{selectedSubmission.summary}</p>
                   <p><strong>Nền Tảng Truyện:</strong></p>
-                  <p className="summary">{selectedSubmission.background}</p>
+                  <p className="summary" style={{whiteSpace: 'pre-wrap'}}>{selectedSubmission.background}</p>
                 </div>
 
                 <div className="modal-actions">
