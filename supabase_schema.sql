@@ -179,6 +179,8 @@ CREATE TABLE IF NOT EXISTS story_upload_requests (
   summary TEXT,
   background TEXT,
   main_genre VARCHAR(100),
+  translator_editor_name VARCHAR(255), -- Name of translator/editor if applicable
+  is_translator_editor BOOLEAN DEFAULT false, -- Whether the uploader is a translator/editor
   status VARCHAR(50) DEFAULT 'pending', -- pending, approved, rejected
   source_url VARCHAR(500),
   source_platform VARCHAR(100),

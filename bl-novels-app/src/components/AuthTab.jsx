@@ -33,7 +33,8 @@ export default function AuthTab({ onLoginSuccess }) {
           setMessage('Lỗi: ' + result.error);
         }
       } else {
-        const result = await login(email, password, userType);
+        // During login, don't pass userType - let the system determine it from the database
+        const result = await login(email, password, null);
         if (result.success) {
           setMessage('Đăng nhập thành công!');
           setEmail('');
@@ -95,17 +96,19 @@ export default function AuthTab({ onLoginSuccess }) {
       </div>
 
       <form onSubmit={handleAuth} className="auth-form">
-        <div className="form-group">
-          <label>Loại tài khoản:</label>
-          <select 
-            value={userType} 
-            onChange={(e) => setUserType(e.target.value)}
-            disabled={loading}
-          >
-            <option value="reader">Độc Giả</option>
-            <option value="translator">Dịch Giả</option>
-          </select>
-        </div>
+        {isRegister && (
+          <div className="form-group">
+            <label>Loại tài khoản:</label>
+            <select
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+              disabled={loading}
+            >
+              <option value="reader">Độc Giả</option>
+              <option value="translator">Dịch Giả</option>
+            </select>
+          </div>
+        )}
 
         <div className="form-group">
           <label>Email:</label>

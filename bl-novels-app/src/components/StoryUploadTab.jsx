@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { formatTitle, formatAuthor, formatGenre, formatTag, formatContext } from '../utils/textFormatter';
 import '../styles/StoryUploadTab.css';
 
 export default function StoryUploadTab() {
@@ -19,7 +20,9 @@ export default function StoryUploadTab() {
     main_genre: '',
     source_url: '',
     source_platform: '',
-    tags: ''
+    tags: '',
+    translator_editor_name: '',
+    is_translator_editor: false
   });
 
   // Fetch user's story uploads
@@ -78,22 +81,25 @@ export default function StoryUploadTab() {
         throw new Error('Vui lòng điền đầy đủ tiêu đề và tên tác giả');
       }
 
-      // Parse tags from comma-separated string
+      // Parse tags from comma-separated string and format them
       const tagsArray = formData.tags
         .split(',')
         .map(tag => tag.trim())
-        .filter(tag => tag.length > 0);
+        .filter(tag => tag.length > 0)
+        .map(tag => formatTag(tag));
 
-      // Prepare upload data (without tags)
+      // Prepare upload data with formatted fields
       const uploadData = {
         user_account_id: currentUser.id,
-        title: formData.title,
-        author_name: formData.author_name,
-        summary: formData.summary,
-        background: formData.background,
-        main_genre: formData.main_genre,
+        title: formatTitle(formData.title),
+        author_name: formatAuthor(formData.author_name),
+        summary: formatContext(formData.summary),
+        background: formatContext(formData.background),
+        main_genre: formatGenre(formData.main_genre),
         source_url: formData.source_url,
         source_platform: formData.source_platform,
+        translator_editor_name: formData.is_translator_editor ? formatAuthor(formData.translator_editor_name) : null,
+        is_translator_editor: formData.is_translator_editor,
         status: 'pending'
       };
 
@@ -130,7 +136,9 @@ export default function StoryUploadTab() {
         main_genre: '',
         source_url: '',
         source_platform: '',
-        tags: ''
+        tags: '',
+        translator_editor_name: '',
+        is_translator_editor: false
       });
 
       // Refresh uploads list
@@ -273,6 +281,37 @@ export default function StoryUploadTab() {
             />
             <small>Nhập các thẻ cách nhau bằng dấu phẩy (,). Ví dụ: Đam Mỹ, Hiện Đại, Hành Động</small>
           </div>
+
+          {/* Translator/Editor Section */}
+          <div className="form-group checkbox-group">
+            <label>
+              <input
+                type="checkbox"
+                name="is_translator_editor"
+                checked={formData.is_translator_editor}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  is_translator_editor: e.target.checked
+                }))}
+                disabled={loading}
+              />
+              Tôi là dịch giả/biên tập viên
+            </label>
+          </div>
+
+          {formData.is_translator_editor && (
+            <div className="form-group">
+              <label>Tên dịch giả/biên tập viên</label>
+              <input
+                type="text"
+                name="translator_editor_name"
+                value={formData.translator_editor_name}
+                onChange={handleInputChange}
+                disabled={loading}
+                placeholder="Nhập tên dịch giả/biên tập viên"
+              />
+            </div>
+          )}
 
           <button
             type="submit"

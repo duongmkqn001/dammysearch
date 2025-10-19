@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
+import { formatTitle, formatAuthor, formatGenre, formatTag, formatContext } from '../utils/textFormatter';
 import '../styles/AdminDashboard.css';
 
 export default function AdminDashboard() {
@@ -19,6 +20,8 @@ export default function AdminDashboard() {
   const [upgradeNotes, setUpgradeNotes] = useState('');
   const [storyUploadNotes, setStoryUploadNotes] = useState('');
   const [activeAdminTab, setActiveAdminTab] = useState('submissions');
+  const [isEditingStoryUpload, setIsEditingStoryUpload] = useState(false);
+  const [editedStoryUpload, setEditedStoryUpload] = useState(null);
 
   // Fetch data on mount
   useEffect(() => {
@@ -26,8 +29,55 @@ export default function AdminDashboard() {
       fetchAllSubmissions();
       fetchUpgradeRequests();
       fetchStoryUploads();
+
+      // Clean up old approved requests (older than 1 week)
+      cleanupOldApprovedRequests();
     }
   }, [currentUser]);
+
+  // Clean up old approved requests (older than 1 week)
+  const cleanupOldApprovedRequests = async () => {
+    try {
+      const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+      // Delete old approved story upload requests
+      const { error: uploadError } = await supabase
+        .from('story_upload_requests')
+        .delete()
+        .eq('status', 'approved')
+        .lt('updated_at', oneWeekAgo);
+
+      if (uploadError) console.error('Error cleaning up story uploads:', uploadError);
+
+      // Delete old approved upgrade requests
+      const { error: upgradeError } = await supabase
+        .from('account_upgrade_requests')
+        .delete()
+        .eq('status', 'approved')
+        .lt('updated_at', oneWeekAgo);
+
+      if (upgradeError) console.error('Error cleaning up upgrade requests:', upgradeError);
+
+      // Delete old rejected requests (older than 1 week)
+      const { error: rejectedUploadError } = await supabase
+        .from('story_upload_requests')
+        .delete()
+        .eq('status', 'rejected')
+        .lt('updated_at', oneWeekAgo);
+
+      if (rejectedUploadError) console.error('Error cleaning up rejected uploads:', rejectedUploadError);
+
+      const { error: rejectedUpgradeError } = await supabase
+        .from('account_upgrade_requests')
+        .delete()
+        .eq('status', 'rejected')
+        .lt('updated_at', oneWeekAgo);
+
+      if (rejectedUpgradeError) console.error('Error cleaning up rejected upgrades:', rejectedUpgradeError);
+    } catch (error) {
+      console.error('Error in cleanup:', error);
+    }
+  };
 
   // Fetch all submissions
   const fetchAllSubmissions = async () => {
@@ -164,18 +214,21 @@ export default function AdminDashboard() {
   const approveAndCreateWork = async (submission) => {
     setLoading(true);
     try {
+      // Format author name
+      const formattedAuthorName = formatAuthor(submission.author_name);
+
       // First, find or create author
       let { data: authorData, error: authorError } = await supabase
         .from('authors')
         .select('id')
-        .eq('name', submission.author_name)
+        .eq('name', formattedAuthorName)
         .single();
 
       if (authorError && authorError.code === 'PGRST116') {
         // Author doesn't exist, create it
         const { data: newAuthor, error: createError } = await supabase
           .from('authors')
-          .insert([{ name: submission.author_name }])
+          .insert([{ name: formattedAuthorName }])
           .select()
           .single();
 
@@ -185,14 +238,14 @@ export default function AdminDashboard() {
         throw authorError;
       }
 
-      // Create work
+      // Create work with formatted fields
       const { data: workData, error: workError } = await supabase
         .from('works')
         .insert([{
-          title: submission.title,
+          title: formatTitle(submission.title),
           author_id: authorData.id,
-          summary: submission.summary,
-          background: submission.background,
+          summary: formatContext(submission.summary),
+          background: formatContext(submission.background),
           status: 'ongoing'
         }])
         .select()
@@ -211,10 +264,125 @@ export default function AdminDashboard() {
     }
   };
 
+  // Save edited story upload
+  const saveEditedStoryUpload = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('story_upload_requests')
+        .update({
+          title: editedStoryUpload.title,
+          author_name: editedStoryUpload.author_name,
+          summary: editedStoryUpload.summary,
+          background: editedStoryUpload.background,
+          main_genre: editedStoryUpload.main_genre,
+          translator_editor_name: editedStoryUpload.translator_editor_name,
+          is_translator_editor: editedStoryUpload.is_translator_editor,
+          source_url: editedStoryUpload.source_url,
+          source_platform: editedStoryUpload.source_platform
+        })
+        .eq('id', editedStoryUpload.id);
+
+      if (error) throw error;
+
+      alert('Cập nhật thành công!');
+      setIsEditingStoryUpload(false);
+      setEditedStoryUpload(null);
+      setSelectedStoryUpload(null);
+      fetchStoryUploads();
+    } catch (error) {
+      console.error('Error saving story upload:', error);
+      alert('Lỗi: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Handle story upload approval/rejection
   const handleStoryUpload = async (uploadId, status) => {
     setLoading(true);
     try {
+      const storyUpload = storyUploads.find(s => s.id === uploadId);
+
+      // If approved, import the story into the main database
+      if (status === 'approved') {
+        // Format author name
+        const formattedAuthorName = formatAuthor(storyUpload.author_name);
+
+        // Find or create author
+        let { data: authorData, error: authorError } = await supabase
+          .from('authors')
+          .select('id')
+          .eq('name', formattedAuthorName)
+          .single();
+
+        if (authorError && authorError.code === 'PGRST116') {
+          // Author doesn't exist, create it
+          const { data: newAuthor, error: createError } = await supabase
+            .from('authors')
+            .insert([{ name: formattedAuthorName }])
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          authorData = newAuthor;
+        } else if (authorError) {
+          throw authorError;
+        }
+
+        // Format and find or create genre
+        const formattedGenre = formatGenre(storyUpload.main_genre);
+        let { data: genreData, error: genreError } = await supabase
+          .from('genres')
+          .select('id')
+          .eq('name', formattedGenre)
+          .single();
+
+        if (genreError && genreError.code === 'PGRST116') {
+          // Genre doesn't exist, create it
+          const { data: newGenre, error: createError } = await supabase
+            .from('genres')
+            .insert([{ name: formattedGenre }])
+            .select()
+            .single();
+
+          if (createError) throw createError;
+          genreData = newGenre;
+        } else if (genreError) {
+          throw genreError;
+        }
+
+        // Create work with formatted fields
+        const { data: workData, error: workError } = await supabase
+          .from('works')
+          .insert([{
+            title: formatTitle(storyUpload.title),
+            author_id: authorData.id,
+            summary: formatContext(storyUpload.summary),
+            background: formatContext(storyUpload.background),
+            status: 'ongoing'
+          }])
+          .select()
+          .single();
+
+        if (workError) throw workError;
+
+        // Insert tags if any - format each tag
+        if (storyUpload.tags && storyUpload.tags.length > 0) {
+          const tagsData = storyUpload.tags.map(tag => ({
+            work_id: workData.id,
+            tag_name: formatTag(tag)
+          }));
+
+          const { error: tagsError } = await supabase
+            .from('work_tags')
+            .insert(tagsData);
+
+          if (tagsError) console.error('Error inserting tags:', tagsError);
+        }
+      }
+
+      // Update story upload request status
       const { error: updateError } = await supabase
         .from('story_upload_requests')
         .update({
@@ -601,59 +769,198 @@ export default function AdminDashboard() {
           </div>
 
           {selectedStoryUpload && (
-            <div className="modal-overlay" onClick={() => setSelectedStoryUpload(null)}>
+            <div className="modal-overlay" onClick={() => {
+              setSelectedStoryUpload(null);
+              setIsEditingStoryUpload(false);
+              setEditedStoryUpload(null);
+            }}>
               <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                 <h3>Chi Tiết Tải Lên Truyện</h3>
                 <div className="modal-body">
-                  <p><strong>Tiêu Đề:</strong> {selectedStoryUpload.title}</p>
-                  <p><strong>Tác Giả:</strong> {selectedStoryUpload.author_name}</p>
-                  <p><strong>Độc Giả:</strong> {selectedStoryUpload.user_accounts?.username} ({selectedStoryUpload.user_accounts?.email})</p>
-                  <p><strong>Thể Loại:</strong> {selectedStoryUpload.main_genre || 'Chưa xác định'}</p>
-                  <p><strong>Tóm Tắt:</strong> {selectedStoryUpload.summary || 'Không có'}</p>
-                  <p><strong>Bối Cảnh:</strong> {selectedStoryUpload.background || 'Không có'}</p>
-                  <p><strong>Nền Tảng Nguồn:</strong> {selectedStoryUpload.source_platform || 'Không có'}</p>
-                  {selectedStoryUpload.source_url && (
-                    <p><strong>URL Nguồn:</strong> <a href={selectedStoryUpload.source_url} target="_blank" rel="noopener noreferrer">{selectedStoryUpload.source_url}</a></p>
+                  {isEditingStoryUpload ? (
+                    <>
+                      <div className="form-group">
+                        <label>Tiêu Đề:</label>
+                        <input
+                          type="text"
+                          value={editedStoryUpload.title}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, title: e.target.value})}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Tác Giả:</label>
+                        <input
+                          type="text"
+                          value={editedStoryUpload.author_name}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, author_name: e.target.value})}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Thể Loại:</label>
+                        <input
+                          type="text"
+                          value={editedStoryUpload.main_genre || ''}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, main_genre: e.target.value})}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Tóm Tắt:</label>
+                        <textarea
+                          value={editedStoryUpload.summary || ''}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, summary: e.target.value})}
+                          disabled={loading}
+                          rows="3"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Bối Cảnh:</label>
+                        <textarea
+                          value={editedStoryUpload.background || ''}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, background: e.target.value})}
+                          disabled={loading}
+                          rows="3"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Nền Tảng Nguồn:</label>
+                        <input
+                          type="text"
+                          value={editedStoryUpload.source_platform || ''}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, source_platform: e.target.value})}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>URL Nguồn:</label>
+                        <input
+                          type="url"
+                          value={editedStoryUpload.source_url || ''}
+                          onChange={(e) => setEditedStoryUpload({...editedStoryUpload, source_url: e.target.value})}
+                          disabled={loading}
+                        />
+                      </div>
+                      <div className="form-group checkbox-group">
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={editedStoryUpload.is_translator_editor || false}
+                            onChange={(e) => setEditedStoryUpload({...editedStoryUpload, is_translator_editor: e.target.checked})}
+                            disabled={loading}
+                          />
+                          Là dịch giả/biên tập viên
+                        </label>
+                      </div>
+                      {editedStoryUpload.is_translator_editor && (
+                        <div className="form-group">
+                          <label>Tên Dịch Giả/Biên Tập Viên:</label>
+                          <input
+                            type="text"
+                            value={editedStoryUpload.translator_editor_name || ''}
+                            onChange={(e) => setEditedStoryUpload({...editedStoryUpload, translator_editor_name: e.target.value})}
+                            disabled={loading}
+                          />
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <p><strong>Tiêu Đề:</strong> {selectedStoryUpload.title}</p>
+                      <p><strong>Tác Giả:</strong> {selectedStoryUpload.author_name}</p>
+                      <p><strong>Độc Giả:</strong> {selectedStoryUpload.user_accounts?.username} ({selectedStoryUpload.user_accounts?.email})</p>
+                      <p><strong>Thể Loại:</strong> {selectedStoryUpload.main_genre || 'Chưa xác định'}</p>
+                      <p><strong>Tóm Tắt:</strong> {selectedStoryUpload.summary || 'Không có'}</p>
+                      <p><strong>Bối Cảnh:</strong> {selectedStoryUpload.background || 'Không có'}</p>
+                      <p><strong>Nền Tảng Nguồn:</strong> {selectedStoryUpload.source_platform || 'Không có'}</p>
+                      {selectedStoryUpload.source_url && (
+                        <p><strong>URL Nguồn:</strong> <a href={selectedStoryUpload.source_url} target="_blank" rel="noopener noreferrer">{selectedStoryUpload.source_url}</a></p>
+                      )}
+                      {selectedStoryUpload.is_translator_editor && (
+                        <p><strong>Dịch Giả/Biên Tập Viên:</strong> {selectedStoryUpload.translator_editor_name || 'N/A'}</p>
+                      )}
+                      <p><strong>Trạng Thái:</strong> {selectedStoryUpload.status === 'pending' ? 'Chờ xử lý' : selectedStoryUpload.status === 'approved' ? 'Phê duyệt' : 'Từ chối'}</p>
+                    </>
                   )}
-                  <p><strong>Trạng Thái:</strong> {selectedStoryUpload.status === 'pending' ? 'Chờ xử lý' : selectedStoryUpload.status === 'approved' ? 'Phê duyệt' : 'Từ chối'}</p>
                 </div>
 
                 <div className="modal-actions">
-                  <div className="reason-input">
-                    <label>Ghi Chú Admin:</label>
-                    <textarea
-                      value={storyUploadNotes}
-                      onChange={(e) => setStoryUploadNotes(e.target.value)}
-                      placeholder="Nhập ghi chú (tùy chọn)"
-                      rows="3"
-                    />
-                  </div>
+                  {!isEditingStoryUpload && (
+                    <div className="reason-input">
+                      <label>Ghi Chú Admin:</label>
+                      <textarea
+                        value={storyUploadNotes}
+                        onChange={(e) => setStoryUploadNotes(e.target.value)}
+                        placeholder="Nhập ghi chú (tùy chọn)"
+                        rows="3"
+                      />
+                    </div>
+                  )}
 
-                  {selectedStoryUpload.status === 'pending' && (
+                  {isEditingStoryUpload ? (
                     <>
                       <button
-                        onClick={() => handleStoryUpload(selectedStoryUpload.id, 'approved')}
+                        onClick={saveEditedStoryUpload}
                         className="approve-btn"
                         disabled={loading}
                       >
-                        ✓ Phê Duyệt
+                        💾 Lưu Thay Đổi
                       </button>
                       <button
-                        onClick={() => handleStoryUpload(selectedStoryUpload.id, 'rejected')}
-                        className="reject-btn"
+                        onClick={() => {
+                          setIsEditingStoryUpload(false);
+                          setEditedStoryUpload(null);
+                        }}
+                        className="close-btn"
                         disabled={loading}
                       >
-                        ✗ Từ Chối
+                        Hủy
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {selectedStoryUpload.status === 'pending' && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setIsEditingStoryUpload(true);
+                              setEditedStoryUpload({...selectedStoryUpload});
+                            }}
+                            className="edit-btn"
+                            disabled={loading}
+                          >
+                            ✏️ Chỉnh Sửa
+                          </button>
+                          <button
+                            onClick={() => handleStoryUpload(selectedStoryUpload.id, 'approved')}
+                            className="approve-btn"
+                            disabled={loading}
+                          >
+                            ✓ Phê Duyệt
+                          </button>
+                          <button
+                            onClick={() => handleStoryUpload(selectedStoryUpload.id, 'rejected')}
+                            className="reject-btn"
+                            disabled={loading}
+                          >
+                            ✗ Từ Chối
+                          </button>
+                        </>
+                      )}
+
+                      <button
+                        onClick={() => {
+                          setSelectedStoryUpload(null);
+                          setIsEditingStoryUpload(false);
+                          setEditedStoryUpload(null);
+                        }}
+                        className="close-btn"
+                      >
+                        Đóng
                       </button>
                     </>
                   )}
-
-                  <button
-                    onClick={() => setSelectedStoryUpload(null)}
-                    className="close-btn"
-                  >
-                    Đóng
-                  </button>
                 </div>
               </div>
             </div>

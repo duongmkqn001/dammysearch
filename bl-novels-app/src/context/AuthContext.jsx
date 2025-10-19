@@ -30,8 +30,8 @@ export function AuthProvider({ children }) {
     initializeAuth();
   }, []);
 
-  // Login function
-  const login = useCallback(async (email, password, type) => {
+  // Login function - type parameter is optional
+  const login = useCallback(async (email, password, type = null) => {
     setLoading(true);
     try {
       let table = 'user_accounts';
@@ -47,6 +47,7 @@ export function AuthProvider({ children }) {
       } else if (type === 'admin') {
         query = query.eq('role', 'admin');
       }
+      // If type is null, don't filter - just find the user by email and password
 
       const { data, error } = await query.single();
 
@@ -57,10 +58,10 @@ export function AuthProvider({ children }) {
       setCurrentUser(data);
       setIsLoggedIn(true);
       setUserType(data.user_type || data.role);
-      
+
       // Persist to localStorage
       localStorage.setItem('currentUser', JSON.stringify(data));
-      
+
       return { success: true, user: data };
     } catch (error) {
       console.error('Login error:', error);

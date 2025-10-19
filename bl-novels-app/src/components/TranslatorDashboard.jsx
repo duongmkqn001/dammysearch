@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { formatTitle, formatAuthor, formatGenre, formatContext } from '../utils/textFormatter';
 import '../styles/TranslatorDashboard.css';
 
 export default function TranslatorDashboard() {
@@ -98,7 +99,13 @@ export default function TranslatorDashboard() {
       const { data, error } = await supabase
         .from('story_import_requests')
         .insert([{
-          ...storyForm,
+          title: formatTitle(storyForm.title),
+          author_name: formatAuthor(storyForm.author_name),
+          summary: formatContext(storyForm.summary),
+          background: formatContext(storyForm.background),
+          main_genre: formatGenre(storyForm.main_genre),
+          source_url: storyForm.source_url,
+          source_platform: storyForm.source_platform,
           translator_id: currentUser.id,
           translator_name: currentUser.username,
           status: 'incoming'
