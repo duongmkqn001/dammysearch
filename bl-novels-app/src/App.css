@@ -1,0 +1,153 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #FFF0F5 0%, #E0F7FA 50%, #F1F8E9 100%);
+  min-height: 100vh;
+  color: #1a1a1a;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 100vh;
+}
+
+.app-header {
+  background: linear-gradient(135deg, rgba(255, 192, 203, 0.4) 0%, rgba(173, 216, 230, 0.4) 100%);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(217, 70, 166, 0.3);
+}
+
+.app-header h1 {
+  color: #C2185B;
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
+  font-weight: 700;
+}
+
+.app-header p {
+  color: #00695C;
+  font-size: 1.1em;
+}
+
+.tab-navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  border: 2px solid #E91E63;
+  border-radius: 8px;
+  background: white;
+  color: #C2185B;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tab-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: #FFF0F5;
+  border-color: #C2185B;
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  color: white;
+  border-color: #E91E63;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4);
+}
+
+.tab-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.12);
+  min-height: 400px;
+  border: 2px solid rgba(233, 30, 99, 0.2);
+  color: #1a1a1a;
+}
+
+@media (max-width: 768px) {
+  .app-container {
+    padding: 10px;
+  }
+
+  .app-header {
+    padding: 20px;
+    margin-bottom: 15px;
+  }
+
+  .app-header h1 {
+    font-size: 1.8em;
+    margin-bottom: 8px;
+  }
+
+  .app-header p {
+    font-size: 0.95em;
+  }
+
+  .tab-navigation {
+    flex-direction: row;
+    gap: 5px;
+    justify-content: space-between;
+  }
+
+  .tab-button {
+    flex: 1;
+    padding: 10px 8px;
+    font-size: 0.85em;
+    min-width: 0;
+  }
+
+  .tab-content {
+    padding: 15px;
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-container {
+    padding: 8px;
+  }
+
+  .app-header {
+    padding: 15px;
+  }
+
+  .app-header h1 {
+    font-size: 1.4em;
+  }
+
+  .app-header p {
+    font-size: 0.85em;
+  }
+
+  .tab-button {
+    padding: 8px 6px;
+    font-size: 0.75em;
+  }
+
+  .tab-content {
+    padding: 12px;
+  }
+}

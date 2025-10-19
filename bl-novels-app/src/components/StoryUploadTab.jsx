@@ -1,0 +1,330 @@
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
+import { useAuth } from '../context/AuthContext';
+import '../styles/StoryUploadTab.css';
+
+export default function StoryUploadTab() {
+  const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('upload');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [uploads, setUploads] = useState([]);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    title: '',
+    author_name: '',
+    summary: '',
+    background: '',
+    main_genre: '',
+    source_url: '',
+    source_platform: '',
+    tags: ''
+  });
+
+  // Fetch user's story uploads
+  useEffect(() => {
+    if (currentUser) {
+      fetchUploads();
+    }
+  }, [currentUser]);
+
+  const fetchUploads = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('story_upload_requests')
+        .select('*')
+        .eq('user_account_id', currentUser.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      // Fetch tags for each upload
+      const uploadsWithTags = await Promise.all(
+        (data || []).map(async (upload) => {
+          const { data: tagsData } = await supabase
+            .from('upload_tags')
+            .select('tag_name')
+            .eq('upload_id', upload.id);
+
+          return {
+            ...upload,
+            tags: tagsData ? tagsData.map(t => t.tag_name) : []
+          };
+        })
+      );
+
+      setUploads(uploadsWithTags);
+    } catch (error) {
+      console.error('Error fetching uploads:', error);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+
+    try {
+      if (!formData.title || !formData.author_name) {
+        throw new Error('Vui lòng điền đầy đủ tiêu đề và tên tác giả');
+      }
+
+      // Parse tags from comma-separated string
+      const tagsArray = formData.tags
+        .split(',')
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
+
+      // Prepare upload data (without tags)
+      const uploadData = {
+        user_account_id: currentUser.id,
+        title: formData.title,
+        author_name: formData.author_name,
+        summary: formData.summary,
+        background: formData.background,
+        main_genre: formData.main_genre,
+        source_url: formData.source_url,
+        source_platform: formData.source_platform,
+        status: 'pending'
+      };
+
+      // Insert story upload request
+      const { data, error } = await supabase
+        .from('story_upload_requests')
+        .insert([uploadData])
+        .select();
+
+      if (error) throw error;
+
+      const uploadId = data[0].id;
+
+      // Insert tags if any
+      if (tagsArray.length > 0) {
+        const tagsData = tagsArray.map(tag => ({
+          upload_id: uploadId,
+          tag_name: tag
+        }));
+
+        const { error: tagsError } = await supabase
+          .from('upload_tags')
+          .insert(tagsData);
+
+        if (tagsError) console.error('Error inserting tags:', tagsError);
+      }
+
+      setMessage('Tải lên thành công! Đang chờ phê duyệt từ quản trị viên.');
+      setFormData({
+        title: '',
+        author_name: '',
+        summary: '',
+        background: '',
+        main_genre: '',
+        source_url: '',
+        source_platform: '',
+        tags: ''
+      });
+
+      // Refresh uploads list
+      await fetchUploads();
+      setActiveTab('history');
+    } catch (error) {
+      setMessage('Lỗi: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'pending':
+        return <span className="badge badge-pending">Chờ xử lý</span>;
+      case 'approved':
+        return <span className="badge badge-approved">Phê duyệt</span>;
+      case 'rejected':
+        return <span className="badge badge-rejected">Từ chối</span>;
+      default:
+        return <span className="badge">{status}</span>;
+    }
+  };
+
+  return (
+    <div className="story-upload-container">
+      <div className="upload-tabs">
+        <button
+          className={`upload-tab-btn ${activeTab === 'upload' ? 'active' : ''}`}
+          onClick={() => setActiveTab('upload')}
+        >
+          📤 Tải Lên Truyện
+        </button>
+        <button
+          className={`upload-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          📋 Lịch Sử Tải Lên
+        </button>
+      </div>
+
+      {activeTab === 'upload' && (
+        <form onSubmit={handleSubmit} className="upload-form">
+          <div className="form-group">
+            <label>Tiêu đề truyện *</label>
+            <input
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              disabled={loading}
+              placeholder="Nhập tiêu đề truyện"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Tên tác giả *</label>
+            <input
+              type="text"
+              name="author_name"
+              value={formData.author_name}
+              onChange={handleInputChange}
+              required
+              disabled={loading}
+              placeholder="Nhập tên tác giả"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Thể loại chính</label>
+            <input
+              type="text"
+              name="main_genre"
+              value={formData.main_genre}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Ví dụ: Đam Mỹ, Ngôn Tình, v.v."
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Tóm tắt</label>
+            <textarea
+              name="summary"
+              value={formData.summary}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Nhập tóm tắt truyện"
+              rows="4"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Bối cảnh</label>
+            <textarea
+              name="background"
+              value={formData.background}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Nhập bối cảnh truyện"
+              rows="4"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Nền tảng nguồn</label>
+            <input
+              type="text"
+              name="source_platform"
+              value={formData.source_platform}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Ví dụ: Wattpad, Web, v.v."
+            />
+          </div>
+
+          <div className="form-group">
+            <label>URL nguồn</label>
+            <input
+              type="url"
+              name="source_url"
+              value={formData.source_url}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="https://..."
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Thẻ (Tags) - Cách nhau bằng dấu phẩy</label>
+            <input
+              type="text"
+              name="tags"
+              value={formData.tags}
+              onChange={handleInputChange}
+              disabled={loading}
+              placeholder="Ví dụ: Đam Mỹ, Hiện Đại, Hành Động, Lãng Mạn"
+            />
+            <small>Nhập các thẻ cách nhau bằng dấu phẩy (,). Ví dụ: Đam Mỹ, Hiện Đại, Hành Động</small>
+          </div>
+
+          <button
+            type="submit"
+            className="upload-submit-btn"
+            disabled={loading}
+          >
+            {loading ? 'Đang tải lên...' : 'Tải Lên Truyện'}
+          </button>
+
+          {message && (
+            <div className={`message ${message.includes('Lỗi') ? 'error' : 'success'}`}>
+              {message}
+            </div>
+          )}
+        </form>
+      )}
+
+      {activeTab === 'history' && (
+        <div className="uploads-history">
+          {uploads.length === 0 ? (
+            <p className="no-uploads">Bạn chưa tải lên truyện nào.</p>
+          ) : (
+            <div className="uploads-list">
+              {uploads.map(upload => (
+                <div key={upload.id} className="upload-item">
+                  <div className="upload-header">
+                    <h3>{upload.title}</h3>
+                    {getStatusBadge(upload.status)}
+                  </div>
+                  <p><strong>Tác giả:</strong> {upload.author_name}</p>
+                  <p><strong>Thể loại:</strong> {upload.main_genre || 'Chưa xác định'}</p>
+                  {upload.tags && upload.tags.length > 0 && (
+                    <p className="upload-tags">
+                      <strong>Thẻ:</strong>
+                      <span className="tags-list">
+                        {upload.tags.map((tag, idx) => (
+                          <span key={idx} className="tag-badge">{tag}</span>
+                        ))}
+                      </span>
+                    </p>
+                  )}
+                  <p><strong>Ngày tải lên:</strong> {new Date(upload.created_at).toLocaleDateString('vi-VN')}</p>
+                  {upload.admin_notes && (
+                    <p className="admin-notes"><strong>Ghi chú từ quản trị viên:</strong> {upload.admin_notes}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
