@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import '../styles/AuthTab.css';
 
-export default function AuthTab() {
+export default function AuthTab({ onLoginSuccess }) {
   const { login, register, isLoggedIn, currentUser, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('login');
   const [userType, setUserType] = useState('reader');
   const [isRegister, setIsRegister] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // Form state
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
@@ -38,6 +38,12 @@ export default function AuthTab() {
           setMessage('Đăng nhập thành công!');
           setEmail('');
           setPassword('');
+          // Call the callback to redirect based on user role
+          if (onLoginSuccess && result.user) {
+            setTimeout(() => {
+              onLoginSuccess(result.user);
+            }, 500);
+          }
         } else {
           setMessage('Lỗi: ' + result.error);
         }

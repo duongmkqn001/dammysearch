@@ -53,7 +53,7 @@ export default function AdminDashboard() {
     try {
       const { data, error } = await supabase
         .from('account_upgrade_requests')
-        .select('*')
+        .select('*, user_accounts(username, email)')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -459,9 +459,9 @@ export default function AdminDashboard() {
             <tbody>
               {(upgradeFilter === 'all' ? upgradeRequests : upgradeRequests.filter(r => r.status === upgradeFilter)).map((request) => (
                 <tr key={request.id}>
-                  <td>{request.user_account_id}</td>
-                  <td>{request.platform_name}</td>
-                  <td>{request.platform_link}</td>
+                  <td>{request.user_accounts?.username || 'N/A'}</td>
+                  <td>{request.user_accounts?.email || 'N/A'}</td>
+                  <td>{request.platform_name || 'N/A'}</td>
                   <td>
                     <span
                       className="status-badge"
@@ -490,8 +490,10 @@ export default function AdminDashboard() {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
               <h3>Yêu Cầu Nâng Cấp</h3>
               <div className="modal-body">
-                <p><strong>Nền Tảng:</strong> {selectedUpgradeRequest.platform_name}</p>
-                <p><strong>Liên Kết:</strong> <a href={selectedUpgradeRequest.platform_link} target="_blank" rel="noopener noreferrer">{selectedUpgradeRequest.platform_link}</a></p>
+                <p><strong>Tên Đăng Nhập:</strong> {selectedUpgradeRequest.user_accounts?.username || 'N/A'}</p>
+                <p><strong>Email:</strong> {selectedUpgradeRequest.user_accounts?.email || 'N/A'}</p>
+                <p><strong>Nền Tảng:</strong> {selectedUpgradeRequest.platform_name || 'N/A'}</p>
+                <p><strong>Liên Kết:</strong> {selectedUpgradeRequest.platform_link ? <a href={selectedUpgradeRequest.platform_link} target="_blank" rel="noopener noreferrer">{selectedUpgradeRequest.platform_link}</a> : 'N/A'}</p>
                 {selectedUpgradeRequest.proof_image_url && (
                   <p><strong>Ảnh Chứng Minh:</strong> <a href={selectedUpgradeRequest.proof_image_url} target="_blank" rel="noopener noreferrer">Xem ảnh</a></p>
                 )}

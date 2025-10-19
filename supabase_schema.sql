@@ -126,6 +126,21 @@ CREATE TABLE translator_accounts (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Account Upgrade Requests table (for readers requesting translator status)
+CREATE TABLE account_upgrade_requests (
+  id BIGSERIAL PRIMARY KEY,
+  user_account_id BIGINT NOT NULL REFERENCES user_accounts(id) ON DELETE CASCADE,
+  platform_name VARCHAR(100),
+  platform_link VARCHAR(500),
+  proof_image_url VARCHAR(500),
+  status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
+  reviewed_by BIGINT REFERENCES user_accounts(id) ON DELETE SET NULL,
+  reviewed_at TIMESTAMP,
+  admin_notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Story Import Requests table (for tracking story submissions)
 CREATE TABLE story_import_requests (
   id BIGSERIAL PRIMARY KEY,
@@ -180,4 +195,6 @@ CREATE INDEX idx_story_import_status ON story_import_requests(status);
 CREATE INDEX idx_story_status_history_story_id ON story_status_history(story_import_id);
 CREATE INDEX IF NOT EXISTS idx_story_upload_user_id ON story_upload_requests(user_account_id);
 CREATE INDEX IF NOT EXISTS idx_story_upload_status ON story_upload_requests(status);
+CREATE INDEX IF NOT EXISTS idx_account_upgrade_user_id ON account_upgrade_requests(user_account_id);
+CREATE INDEX IF NOT EXISTS idx_account_upgrade_status ON account_upgrade_requests(status);
 

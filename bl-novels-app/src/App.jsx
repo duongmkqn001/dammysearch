@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import SearchTab from './components/SearchTab'
 import AuthorListTab from './components/AuthorListTab'
@@ -11,7 +11,33 @@ import { useAuth } from './context/AuthContext'
 
 function App() {
   const [activeTab, setActiveTab] = useState('search')
-  const { isLoggedIn, isAdmin } = useAuth()
+  const { isLoggedIn, isAdmin, currentUser } = useAuth()
+
+  // Auto-redirect based on user role after login
+  useEffect(() => {
+    if (isLoggedIn && currentUser) {
+      // Check if user is admin
+      if (currentUser.role === 'admin') {
+        setActiveTab('admin');
+      } else if (currentUser.user_type === 'translator') {
+        setActiveTab('translator');
+      } else if (currentUser.user_type === 'reader') {
+        setActiveTab('reader');
+      }
+    }
+  }, [isLoggedIn, currentUser]);
+
+  // Handle login success callback
+  const handleLoginSuccess = (user) => {
+    // Redirect based on user role
+    if (user.role === 'admin') {
+      setActiveTab('admin');
+    } else if (user.user_type === 'translator') {
+      setActiveTab('translator');
+    } else if (user.user_type === 'reader') {
+      setActiveTab('reader');
+    }
+  };
 
   return (
     <div className="app-container">
@@ -74,7 +100,7 @@ function App() {
         {activeTab === 'search' && <SearchTab />}
         {activeTab === 'authors' && <AuthorListTab />}
         {activeTab === 'works' && <WorksListTab />}
-        {activeTab === 'auth' && <AuthTab />}
+        {activeTab === 'auth' && <AuthTab onLoginSuccess={handleLoginSuccess} />}
         {activeTab === 'reader' && isLoggedIn && <ReaderDashboard />}
         {activeTab === 'translator' && isLoggedIn && <TranslatorDashboard />}
         {activeTab === 'admin' && isAdmin() && <AdminDashboard />}
