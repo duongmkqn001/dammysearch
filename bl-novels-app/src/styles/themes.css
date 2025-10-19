@@ -1,0 +1,196 @@
+/* Blue Sky Theme (Default) */
+:root[data-theme="blue-sky"],
+:root {
+  --primary-color: #00BCD4;
+  --secondary-color: #0097A7;
+  --accent-color: #4DD0E1;
+  --background: linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 50%, #80DEEA 100%);
+  --header-bg: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #00695C;
+  --text-secondary: #666;
+  --border-color: #00BCD4;
+  --button-hover: rgba(0, 188, 212, 0.1);
+  --shadow-color: rgba(0, 188, 212, 0.2);
+}
+
+/* Love Theme */
+:root[data-theme="love"] {
+  --primary-color: #E91E63;
+  --secondary-color: #C2185B;
+  --accent-color: #FF6B9D;
+  --background: linear-gradient(135deg, #FFF0F5 0%, #E0F7FA 50%, #F1F8E9 100%);
+  --header-bg: linear-gradient(135deg, rgba(255, 192, 203, 0.4) 0%, rgba(173, 216, 230, 0.4) 100%);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text-primary: #C2185B;
+  --text-secondary: #666;
+  --border-color: #E91E63;
+  --button-hover: rgba(233, 30, 99, 0.1);
+  --shadow-color: rgba(233, 30, 99, 0.2);
+}
+
+/* Apply theme colors to body */
+body {
+  background: var(--background);
+  color: var(--text-primary);
+}
+
+/* Apply theme to buttons */
+.tab-button {
+  border-color: var(--primary-color);
+  color: var(--secondary-color);
+}
+
+.tab-button:hover {
+  background: var(--button-hover);
+  border-color: var(--secondary-color);
+}
+
+.tab-button.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Apply theme to headers */
+.app-header {
+  background: var(--header-bg);
+  border-color: rgba(0, 188, 212, 0.3);
+}
+
+.app-header h1 {
+  color: var(--text-primary);
+}
+
+/* Apply theme to cards and content */
+.tab-content {
+  background: var(--card-bg);
+  border-color: var(--border-color);
+}
+
+/* Apply theme to modals */
+.modal-content {
+  background: var(--card-bg);
+}
+
+.modal-content h2 {
+  color: var(--text-primary);
+}
+
+.modal-summary,
+.modal-background {
+  background: rgba(0, 188, 212, 0.05);
+  border-left-color: var(--primary-color);
+}
+
+:root[data-theme="love"] .modal-summary,
+:root[data-theme="love"] .modal-background {
+  background: rgba(233, 30, 99, 0.05);
+  border-left-color: var(--primary-color);
+}
+
+/* Apply theme to admin dashboard */
+.admin-dashboard {
+  color: var(--text-primary);
+}
+
+.admin-header {
+  color: var(--text-primary);
+}
+
+.admin-tabs .admin-tab-btn {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.admin-tabs .admin-tab-btn.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Apply theme to forms */
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-color: var(--primary-color);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 0 3px var(--shadow-color);
+}
+
+/* Apply theme to badges and status */
+.status-badge {
+  background: var(--button-hover);
+  color: var(--text-primary);
+}
+
+/* Apply theme to work cards */
+.work-card {
+  border-color: var(--primary-color);
+}
+
+.work-card:hover {
+  border-color: var(--secondary-color);
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Apply theme to author items */
+.author-item {
+  border-color: var(--primary-color);
+  color: var(--text-primary);
+}
+
+.author-item:hover {
+  border-color: var(--secondary-color);
+  background: var(--button-hover);
+}
+
+.author-item.active {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+}
+
+/* Apply theme to buttons */
+.approve-btn,
+.action-btn {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+}
+
+.approve-btn:hover,
+.action-btn:hover {
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Apply theme to search and filters */
+.search-button {
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+  color: white;
+}
+
+.search-button:hover {
+  box-shadow: 0 4px 12px var(--shadow-color);
+}
+
+/* Apply theme to tags */
+.tag {
+  background: var(--button-hover);
+  color: var(--text-primary);
+  border-color: var(--primary-color);
+}
+
+/* Apply theme to translator dashboard */
+.translator-dashboard {
+  color: var(--text-primary);
+}
+
+/* Apply theme to reader dashboard */
+.reader-dashboard {
+  color: var(--text-primary);
+}
+

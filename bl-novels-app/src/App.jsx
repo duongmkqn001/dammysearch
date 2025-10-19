@@ -8,10 +8,12 @@ import ReaderDashboard from './components/ReaderDashboard'
 import AdminDashboard from './components/AdminDashboard'
 import AuthTab from './components/AuthTab'
 import { useAuth } from './context/AuthContext'
+import { useTheme } from './context/ThemeContext'
 
 function App() {
   const [activeTab, setActiveTab] = useState('search')
   const { isLoggedIn, isAdmin, currentUser } = useAuth()
+  const { theme, toggleTheme, themes } = useTheme()
 
   // Auto-redirect based on user role after login
   useEffect(() => {
@@ -42,7 +44,12 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Kho lưu trữ Đam Mỹ</h1>
+        <div className="header-content">
+          <h1>Kho lưu trữ Đam Mỹ</h1>
+          <button className="theme-switcher" onClick={toggleTheme} title={`Chuyển sang theme ${theme === 'blue-sky' ? 'Love' : 'Blue Sky'}`}>
+            {theme === 'blue-sky' ? '💕 Love' : '☁️ Blue Sky'}
+          </button>
+        </div>
       </header>
 
       <nav className="tab-navigation">
@@ -87,12 +94,13 @@ function App() {
           </>
         )}
         {isAdmin() && (
-          <button
-            className={`tab-button ${activeTab === 'admin' ? 'active' : ''}`}
-            onClick={() => setActiveTab('admin')}
+          <a
+            href="/admin.html"
+            className="tab-button admin-link"
+            target="_self"
           >
-            ⚙️ Admin
-          </button>
+            ⚙️ Admin Dashboard
+          </a>
         )}
       </nav>
 
@@ -103,7 +111,6 @@ function App() {
         {activeTab === 'auth' && <AuthTab onLoginSuccess={handleLoginSuccess} />}
         {activeTab === 'reader' && isLoggedIn && <ReaderDashboard />}
         {activeTab === 'translator' && isLoggedIn && <TranslatorDashboard />}
-        {activeTab === 'admin' && isAdmin() && <AdminDashboard />}
       </main>
     </div>
   )

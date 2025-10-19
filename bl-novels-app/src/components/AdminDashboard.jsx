@@ -22,6 +22,10 @@ export default function AdminDashboard() {
   const [activeAdminTab, setActiveAdminTab] = useState('submissions');
   const [isEditingStoryUpload, setIsEditingStoryUpload] = useState(false);
   const [editedStoryUpload, setEditedStoryUpload] = useState(null);
+  const [works, setWorks] = useState([]);
+  const [selectedWork, setSelectedWork] = useState(null);
+  const [isEditingWork, setIsEditingWork] = useState(false);
+  const [editedWork, setEditedWork] = useState(null);
 
   // Fetch data on mount
   useEffect(() => {
@@ -29,6 +33,7 @@ export default function AdminDashboard() {
       fetchAllSubmissions();
       fetchUpgradeRequests();
       fetchStoryUploads();
+      fetchWorks();
 
       // Clean up old approved requests (older than 1 week)
       cleanupOldApprovedRequests();
@@ -125,6 +130,42 @@ export default function AdminDashboard() {
       setStoryUploads(data || []);
     } catch (error) {
       console.error('Error fetching story uploads:', error);
+    }
+  };
+
+  // Fetch all works for editing
+  const fetchWorks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('works')
+        .select('*, authors(name), genres(name)')
+        .order('title', { ascending: true });
+
+      if (error) throw error;
+      setWorks(data || []);
+    } catch (error) {
+      console.error('Error fetching works:', error);
+    }
+  };
+
+  // Handle work status update
+  const handleUpdateWorkStatus = async (workId, newStatus) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('works')
+        .update({ status: newStatus })
+        .eq('id', workId);
+
+      if (error) throw error;
+      alert('Cập nhật trạng thái thành công!');
+      fetchWorks();
+      setSelectedWork(null);
+    } catch (error) {
+      console.error('Error updating work status:', error);
+      alert('Lỗi: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -472,6 +513,12 @@ export default function AdminDashboard() {
           onClick={() => setActiveAdminTab('upgrades')}
         >
           ⬆️ Yêu Cầu Nâng Cấp
+        </button>
+        <button
+          className={`admin-tab-btn ${activeAdminTab === 'works' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('works')}
+        >
+          📖 Quản Lý Truyện
         </button>
       </div>
 
@@ -961,6 +1008,96 @@ export default function AdminDashboard() {
                       </button>
                     </>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeAdminTab === 'works' && (
+        <div className="works-section">
+          <h3>Quản Lý Truyện</h3>
+          <p className="section-info">Chỉnh sửa thông tin truyện trong hệ thống</p>
+
+          {loading && <p className="loading">Đang tải...</p>}
+
+          <div className="works-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Tiêu Đề</th>
+                  <th>Tác Giả</th>
+                  <th>Thể Loại</th>
+                  <th>Trạng Thái</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody>
+                {works.map((work) => (
+                  <tr key={work.id}>
+                    <td>{work.title}</td>
+                    <td>{work.authors?.name || 'N/A'}</td>
+                    <td>{work.genres?.name || 'N/A'}</td>
+                    <td>
+                      <span
+                        className="status-badge"
+                        style={{
+                          backgroundColor: work.status === 'ongoing' ? '#B3E5FC' : work.status === 'completed' ? '#C8E6C9' : '#FFCCBB'
+                        }}
+                      >
+                        {work.status === 'ongoing' ? '🔄 Đang tiến hành' : work.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        onClick={() => setSelectedWork(work)}
+                        className="action-btn"
+                      >
+                        Chỉnh Sửa
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {selectedWork && (
+            <div className="modal-overlay" onClick={() => setSelectedWork(null)}>
+              <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h3>Chỉnh Sửa Truyện</h3>
+                <div className="modal-body">
+                  <p><strong>Tiêu Đề:</strong> {selectedWork.title}</p>
+                  <p><strong>Tác Giả:</strong> {selectedWork.authors?.name || 'N/A'}</p>
+                  <p><strong>Thể Loại:</strong> {selectedWork.genres?.name || 'N/A'}</p>
+                  <p><strong>Trạng Thái Hiện Tại:</strong> {selectedWork.status === 'ongoing' ? '🔄 Đang tiến hành' : selectedWork.status === 'completed' ? '✅ Hoàn thành' : '⏸️ Tạm dừng'}</p>
+
+                  <div className="form-group">
+                    <label>Thay Đổi Trạng Thái:</label>
+                    <select
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleUpdateWorkStatus(selectedWork.id, e.target.value);
+                        }
+                      }}
+                      defaultValue=""
+                    >
+                      <option value="">-- Chọn trạng thái mới --</option>
+                      <option value="ongoing">🔄 Đang tiến hành</option>
+                      <option value="completed">✅ Hoàn thành</option>
+                      <option value="hiatus">⏸️ Tạm dừng</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="modal-actions">
+                  <button
+                    onClick={() => setSelectedWork(null)}
+                    className="close-btn"
+                  >
+                    Đóng
+                  </button>
                 </div>
               </div>
             </div>

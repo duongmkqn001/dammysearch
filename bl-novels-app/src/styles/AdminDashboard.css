@@ -576,3 +576,73 @@
   height: 18px;
   cursor: pointer;
 }
+
+/* Works Section */
+.works-section {
+  width: 100%;
+}
+
+.works-section h3 {
+  color: #C2185B;
+  margin-bottom: 10px;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
+.section-info {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 0.95em;
+}
+
+.works-table {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.works-table table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.works-table thead {
+  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  color: white;
+}
+
+.works-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  border-bottom: 2px solid #E91E63;
+}
+
+.works-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.works-table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.works-table .action-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #E91E63 0%, #00BCD4 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.works-table .action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+}
