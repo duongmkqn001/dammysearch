@@ -345,6 +345,15 @@
   line-height: 1.8;
 }
 
+.modal-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 @media (max-width: 768px) {
   .modal-content {
     padding: 20px;
@@ -357,6 +366,10 @@
 
   .modal-body {
     gap: 12px;
+  }
+
+  .modal-actions {
+    justify-content: center;
   }
 }
 

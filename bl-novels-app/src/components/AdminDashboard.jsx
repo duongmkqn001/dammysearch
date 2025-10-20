@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { formatTitle, formatAuthor, formatGenre, formatTag, formatContext } from '../utils/textFormatter';
+import ErrorReportsTab from './ErrorReportsTab';
+import ReviewReportsTab from './ReviewReportsTab';
+import BulkUploadTab from './BulkUploadTab';
 import '../styles/AdminDashboard.css';
 
 export default function AdminDashboard() {
@@ -515,6 +518,24 @@ export default function AdminDashboard() {
           ⬆️ Yêu Cầu Nâng Cấp
         </button>
         <button
+          className={`admin-tab-btn ${activeAdminTab === 'error-reports' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('error-reports')}
+        >
+          🚨 Báo Cáo Lỗi
+        </button>
+        <button
+          className={`admin-tab-btn ${activeAdminTab === 'review-reports' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('review-reports')}
+        >
+          🚩 Báo Cáo Đánh Giá
+        </button>
+        <button
+          className={`admin-tab-btn ${activeAdminTab === 'bulk-upload' ? 'active' : ''}`}
+          onClick={() => setActiveAdminTab('bulk-upload')}
+        >
+          📤 Tải Lên Hàng Loạt
+        </button>
+        <button
           className={`admin-tab-btn ${activeAdminTab === 'works' ? 'active' : ''}`}
           onClick={() => setActiveAdminTab('works')}
         >
@@ -1015,6 +1036,18 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+      )}
+
+      {activeAdminTab === 'error-reports' && (
+        <ErrorReportsTab />
+      )}
+
+      {activeAdminTab === 'review-reports' && (
+        <ReviewReportsTab />
+      )}
+
+      {activeAdminTab === 'bulk-upload' && (
+        <BulkUploadTab />
       )}
 
       {activeAdminTab === 'works' && (

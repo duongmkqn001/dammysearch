@@ -241,6 +241,15 @@
   line-height: 1.8;
 }
 
+.modal-actions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .loading {
   text-align: center;
   padding: 40px;
@@ -297,6 +306,10 @@
   .work-item .summary {
     font-size: 0.85em;
     max-height: 50px;
+  }
+
+  .modal-actions {
+    justify-content: center;
   }
 }
 

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabaseClient'
+import ReportButton from './ReportButton'
+import ReviewSection from './ReviewSection'
 import '../styles/SearchTab.css'
 
 export default function SearchTab() {
@@ -335,6 +337,12 @@ export default function SearchTab() {
                   </a>
                 </p>
               )}
+
+              <div className="modal-actions">
+                <ReportButton work={selectedWork} />
+              </div>
+
+              <ReviewSection workId={selectedWork.id} />
             </div>
           </div>
         </div>

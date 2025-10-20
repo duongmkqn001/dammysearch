@@ -1,0 +1,45 @@
+/* Review Reports Tab - Inherits most styles from ErrorReportsTab */
+@import './ErrorReportsTab.css';
+
+/* Additional specific styles for review reports */
+.review-preview {
+  background: var(--button-hover);
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid var(--primary-color);
+  margin-top: 8px;
+}
+
+.review-preview p {
+  margin: 0;
+  color: #555;
+}
+
+.review-preview strong {
+  color: var(--text-primary);
+}
+
+.btn-hide-review {
+  flex: 1;
+  min-width: 150px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+}
+
+.btn-hide-review:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4);
+}
+
+.btn-hide-review:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
